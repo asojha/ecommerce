@@ -75,6 +75,56 @@ flowchart LR
 
 ---
 
+## Database Diagram
+
+```mermaid
+erDiagram
+    PRODUCTS {
+        BIGINT id PK
+        VARCHAR name "NOT NULL"
+        VARCHAR description
+        DECIMAL price "NOT NULL"
+        VARCHAR category "ELECTRONICS | FASHION | HOME_AND_KITCHEN | SPORTS | BEAUTY | BOOKS | TOYS | FOOD_AND_GROCERY | AUTOMOTIVE | HEALTH | TRAVEL | FINANCE"
+        INT min_age
+        INT max_age
+        VARCHAR target_gender "MALE | FEMALE | ALL"
+        VARCHAR min_income_level "LOW | MEDIUM | HIGH | PREMIUM"
+        VARCHAR image_url
+        BOOLEAN active
+    }
+
+    PRODUCT_TAGS {
+        BIGINT product_id FK
+        VARCHAR tag
+    }
+
+    USER_PROFILES {
+        BIGINT id PK
+        VARCHAR email "NOT NULL, UNIQUE"
+        VARCHAR name "NOT NULL"
+        INT age
+        VARCHAR gender "MALE | FEMALE"
+        VARCHAR location
+        VARCHAR income_level "LOW | MEDIUM | HIGH | PREMIUM"
+    }
+
+    USER_INTERESTS {
+        BIGINT user_id FK
+        VARCHAR category "ELECTRONICS | FASHION | HOME_AND_KITCHEN | SPORTS | BEAUTY | BOOKS | TOYS | FOOD_AND_GROCERY | AUTOMOTIVE | HEALTH | TRAVEL | FINANCE"
+    }
+
+    PRODUCTS ||--o{ PRODUCT_TAGS : "has"
+    USER_PROFILES ||--o{ USER_INTERESTS : "has"
+```
+
+> **Notes**
+> - `PRODUCT_TAGS` and `USER_INTERESTS` are JPA `@ElementCollection` tables — no surrogate key, foreign key is part of the implicit composite key.
+> - `products.active` enables soft-delete: `DELETE /api/products/{id}` sets `active = false` rather than removing the row.
+> - `products.min_income_level` is an ordered enum (`LOW < MEDIUM < HIGH < PREMIUM`). A user qualifies if their income level is ≥ this value.
+> - `user_profiles.email` is unique — re-submitting the same email updates the profile in place (upsert).
+
+---
+
 ## Tech Stack
 
 | Layer | Technology |
