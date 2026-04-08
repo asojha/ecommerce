@@ -80,7 +80,8 @@ flowchart LR
 ```mermaid
 erDiagram
     PRODUCTS {
-        BIGINT id PK
+        VARCHAR product_type "STANDARD | SUBSCRIPTION (discriminator)"
+        VARCHAR sku PK "alphanumeric, e.g. ELEC-IP15P"
         VARCHAR name "NOT NULL"
         VARCHAR description
         DECIMAL price "NOT NULL"
@@ -91,10 +92,12 @@ erDiagram
         VARCHAR min_income_level "LOW | MEDIUM | HIGH | PREMIUM"
         VARCHAR image_url
         BOOLEAN active
+        VARCHAR billing_cycle "WEEKLY | MONTHLY | QUARTERLY | ANNUAL — subscription only"
+        INT trial_days "subscription only, nullable"
     }
 
     PRODUCT_TAGS {
-        BIGINT product_id FK
+        VARCHAR sku FK
         VARCHAR tag
     }
 
@@ -118,8 +121,10 @@ erDiagram
 ```
 
 > **Notes**
+> - `PRODUCTS` uses **JPA Single Table Inheritance** — `product_type` is the discriminator column. `STANDARD` maps to `Product`, `SUBSCRIPTION` maps to `SubscriptionProduct`. Subscription-only columns (`billing_cycle`, `trial_days`) are `NULL` for standard rows.
 > - `PRODUCT_TAGS` and `USER_INTERESTS` are JPA `@ElementCollection` tables — no surrogate key, foreign key is part of the implicit composite key.
-> - `products.active` enables soft-delete: `DELETE /api/products/{id}` sets `active = false` rather than removing the row.
+> - `products.sku` is the human-readable primary key (e.g. `ELEC-IP15P`). If omitted on creation, the server auto-generates one from the category prefix + 6 random alphanumeric chars (e.g. `ELEC-A3F7B2`). SKUs are immutable after creation.
+> - `products.active` enables soft-delete: `DELETE /api/products/{sku}` sets `active = false` rather than removing the row.
 > - `products.min_income_level` is an ordered enum (`LOW < MEDIUM < HIGH < PREMIUM`). A user qualifies if their income level is ≥ this value.
 > - `user_profiles.email` is unique — re-submitting the same email updates the profile in place (upsert).
 

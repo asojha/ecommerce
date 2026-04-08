@@ -1,25 +1,36 @@
 package com.ecommerce.model;
 
+import com.ecommerce.model.SubscriptionProduct;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
 import java.util.List;
 
 @Entity
 @Table(name = "products")
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "product_type", discriminatorType = DiscriminatorType.STRING)
+@DiscriminatorValue("STANDARD")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "productType", defaultImpl = Product.class, visible = true)
+@JsonSubTypes({
+    @JsonSubTypes.Type(value = Product.class,             name = "STANDARD"),
+    @JsonSubTypes.Type(value = SubscriptionProduct.class, name = "SUBSCRIPTION")
+})
 @Data
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Product {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "sku", nullable = false, unique = true, length = 20)
+    private String sku;  // alphanumeric, e.g. ELEC-IP15P
 
     @Column(nullable = false)
     private String name;
@@ -37,13 +48,13 @@ public class Product {
     private Integer maxAge;
 
     @Enumerated(EnumType.STRING)
-    private Gender targetGender;  // null = all genders
+    private Gender targetGender;
 
     @Enumerated(EnumType.STRING)
-    private IncomeLevel minIncomeLevel;  // minimum income tier required
+    private IncomeLevel minIncomeLevel;
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "product_tags", joinColumns = @JoinColumn(name = "product_id"))
+    @CollectionTable(name = "product_tags", joinColumns = @JoinColumn(name = "sku"))
     @Column(name = "tag")
     private List<String> tags;
 
@@ -52,7 +63,24 @@ public class Product {
 
     public enum Category {
         ELECTRONICS, FASHION, HOME_AND_KITCHEN, SPORTS, BEAUTY, BOOKS,
-        TOYS, FOOD_AND_GROCERY, AUTOMOTIVE, HEALTH, TRAVEL, FINANCE
+        TOYS, FOOD_AND_GROCERY, AUTOMOTIVE, HEALTH, TRAVEL, FINANCE;
+
+        public String skuPrefix() {
+            return switch (this) {
+                case ELECTRONICS      -> "ELEC";
+                case FASHION          -> "FASH";
+                case HOME_AND_KITCHEN -> "HOME";
+                case SPORTS           -> "SPRT";
+                case BEAUTY           -> "BEAU";
+                case BOOKS            -> "BOOK";
+                case TOYS             -> "TOYS";
+                case FOOD_AND_GROCERY -> "FOOD";
+                case AUTOMOTIVE       -> "AUTO";
+                case HEALTH           -> "HLTH";
+                case TRAVEL           -> "TRVL";
+                case FINANCE          -> "FINC";
+            };
+        }
     }
 
     public enum Gender {

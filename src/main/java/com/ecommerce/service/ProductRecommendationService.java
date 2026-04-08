@@ -27,7 +27,7 @@ public class ProductRecommendationService {
         UserProfile profile = upsertProfile(request);
 
         // Fetch all active products and score them against the profile
-        List<Product> allProducts = productRepository.findByActiveTrue();
+        List<Product> allProducts = productRepository.findByActiveTrue(); // only active products for recommendations
 
         List<ProductResponse> ranked = allProducts.stream()
                 .map(p -> ProductResponse.from(p, score(p, profile)))

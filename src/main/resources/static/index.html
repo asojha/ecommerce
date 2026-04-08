@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Product Authoring — Ecommerce</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-inner">
+      <span class="logo">🛍 Ecommerce Admin</span>
+      <span class="header-sub">Product Catalogue</span>
+    </div>
+  </header>
+
+  <!-- Main layout -->
+  <div class="layout">
+
+    <!-- Product table panel -->
+    <main class="main">
+      <div class="toolbar">
+        <h1 class="page-title">Products</h1>
+        <button class="btn btn-primary" id="btn-add">+ Add Product</button>
+      </div>
+
+      <!-- Filters -->
+      <div class="filters">
+        <input type="text" id="search" class="input" placeholder="Search by name or SKU…" />
+        <select id="filter-category" class="input">
+          <option value="">All categories</option>
+        </select>
+        <select id="filter-type" class="input">
+          <option value="">All types</option>
+          <option value="STANDARD">Standard</option>
+          <option value="SUBSCRIPTION">Subscription</option>
+        </select>
+        <label class="toggle-label">
+          <input type="checkbox" id="show-inactive" />
+          Show inactive
+        </label>
+      </div>
+
+      <!-- Toast -->
+      <div id="toast" class="toast hidden"></div>
+
+      <!-- Table -->
+      <div class="table-wrap">
+        <table class="table" id="products-table">
+          <thead>
+            <tr>
+              <th>SKU</th>
+              <th>Name</th>
+              <th>Type</th>
+              <th>Category</th>
+              <th>Price</th>
+              <th>Billing</th>
+              <th>Trial</th>
+              <th>Age Range</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="products-body">
+            <tr><td colspan="10" class="empty">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+
+    <!-- Slide-in form panel -->
+    <aside class="panel" id="panel">
+      <div class="panel-header">
+        <h2 id="panel-title">Add Product</h2>
+        <button class="btn-icon" id="btn-close" aria-label="Close">✕</button>
+      </div>
+
+      <form id="product-form" class="form" novalidate>
+
+        <!-- Product type selector -->
+        <div class="form-group">
+          <label>Product Type <span class="req">*</span></label>
+          <div class="type-tabs" id="type-tabs">
+            <button type="button" class="type-tab active" data-type="STANDARD">Standard</button>
+            <button type="button" class="type-tab" data-type="SUBSCRIPTION">Subscription</button>
+          </div>
+          <input type="hidden" id="field-product-type" value="STANDARD" />
+        </div>
+
+        <div class="form-group">
+          <label for="field-sku">SKU <span class="hint">(auto-generated if left blank)</span></label>
+          <input id="field-sku" class="input" type="text" placeholder="e.g. ELEC-AB12CD" maxlength="20" />
+          <span class="field-error" id="err-sku"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="field-name">Name <span class="req">*</span></label>
+          <input id="field-name" class="input" type="text" placeholder="Product name" required />
+          <span class="field-error" id="err-name"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="field-description">Description</label>
+          <textarea id="field-description" class="input" rows="3" placeholder="Short description"></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="field-price" id="label-price">Price ($) <span class="req">*</span></label>
+            <input id="field-price" class="input" type="number" min="0" step="0.01" placeholder="0.00" required />
+            <span class="field-error" id="err-price"></span>
+          </div>
+          <div class="form-group">
+            <label for="field-category">Category <span class="req">*</span></label>
+            <select id="field-category" class="input" required>
+              <option value="">Select…</option>
+            </select>
+            <span class="field-error" id="err-category"></span>
+          </div>
+        </div>
+
+        <!-- Subscription-only fields -->
+        <div id="subscription-section" class="subscription-section hidden">
+          <div class="section-divider">Subscription Details</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="field-billing-cycle">Billing Cycle <span class="req">*</span></label>
+              <select id="field-billing-cycle" class="input">
+                <option value="">Select…</option>
+                <option value="WEEKLY">Weekly</option>
+                <option value="MONTHLY">Monthly</option>
+                <option value="QUARTERLY">Quarterly</option>
+                <option value="ANNUAL">Annual</option>
+              </select>
+              <span class="field-error" id="err-billing-cycle"></span>
+            </div>
+            <div class="form-group">
+              <label for="field-trial-days">Free Trial Days</label>
+              <input id="field-trial-days" class="input" type="number" min="0" placeholder="e.g. 30 (optional)" />
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="field-min-age">Min Age</label>
+            <input id="field-min-age" class="input" type="number" min="0" max="120" placeholder="e.g. 18" />
+          </div>
+          <div class="form-group">
+            <label for="field-max-age">Max Age</label>
+            <input id="field-max-age" class="input" type="number" min="0" max="120" placeholder="e.g. 65" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="field-gender">Target Gender</label>
+            <select id="field-gender" class="input">
+              <option value="">Any</option>
+              <option value="MALE">Male</option>
+              <option value="FEMALE">Female</option>
+              <option value="ALL">All</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="field-income">Min Income Level</label>
+            <select id="field-income" class="input">
+              <option value="">Any</option>
+              <option value="LOW">Low</option>
+              <option value="MEDIUM">Medium</option>
+              <option value="HIGH">High</option>
+              <option value="PREMIUM">Premium</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="field-tags">Tags <span class="hint">(comma-separated)</span></label>
+          <input id="field-tags" class="input" type="text" placeholder="e.g. tech, premium, gadget" />
+        </div>
+
+        <div class="form-group">
+          <label for="field-image-url">Image URL</label>
+          <input id="field-image-url" class="input" type="url" placeholder="https://…" />
+        </div>
+
+        <div class="form-group form-check">
+          <label class="toggle-label">
+            <input type="checkbox" id="field-active" checked />
+            Active (visible to customers)
+          </label>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-ghost" id="btn-cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btn-submit">Save Product</button>
+        </div>
+      </form>
+    </aside>
+
+  </div>
+
+  <!-- Delete confirmation modal -->
+  <div class="modal-backdrop hidden" id="modal-backdrop">
+    <div class="modal">
+      <h3>Delete product?</h3>
+      <p id="modal-msg">This will deactivate the product. It can be re-activated later.</p>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="modal-cancel">Cancel</button>
+        <button class="btn btn-danger" id="modal-confirm">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
