@@ -55,6 +55,15 @@ public class Product {
     private String imageUrl;
     private boolean active = true;
 
+    // ── Customer lifecycle eligibility ──────────────────────────────────────
+    /** Minimum lifecycle stage required; null = any customer. */
+    @Enumerated(EnumType.STRING)
+    private CustomerStatus minCustomerStatus;
+
+    /** Minimum loyalty tier required; null = any tier. */
+    @Enumerated(EnumType.STRING)
+    private LoyaltyTier minLoyaltyTier;
+
     public enum Category {
         ELECTRONICS, FASHION, HOME_AND_KITCHEN, SPORTS, BEAUTY, BOOKS,
         TOYS, FOOD_AND_GROCERY, AUTOMOTIVE, HEALTH, TRAVEL, FINANCE;
@@ -85,6 +94,35 @@ public class Product {
         LOW, MEDIUM, HIGH, PREMIUM;
 
         public boolean isAtLeast(IncomeLevel other) {
+            return this.ordinal() >= other.ordinal();
+        }
+    }
+
+    /**
+     * Customer lifecycle stage.
+     * Ordered: NEW < RETURNING < LOYAL < VIP.
+     * AT_RISK is a lateral state treated as RETURNING for eligibility checks.
+     */
+    public enum CustomerStatus {
+        NEW, RETURNING, LOYAL, VIP, AT_RISK;
+
+        /** Returns the ordinal used for "at least" comparisons. AT_RISK maps to RETURNING. */
+        public int eligibilityOrdinal() {
+            return this == AT_RISK ? RETURNING.ordinal() : this.ordinal();
+        }
+
+        public boolean isAtLeast(CustomerStatus other) {
+            return this.eligibilityOrdinal() >= other.eligibilityOrdinal();
+        }
+    }
+
+    /**
+     * Customer loyalty tier, ordered NONE < BRONZE < SILVER < GOLD < PLATINUM.
+     */
+    public enum LoyaltyTier {
+        NONE, BRONZE, SILVER, GOLD, PLATINUM;
+
+        public boolean isAtLeast(LoyaltyTier other) {
             return this.ordinal() >= other.ordinal();
         }
     }

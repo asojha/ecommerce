@@ -27,4 +27,15 @@ public class UserProfileRequest {
     private Product.IncomeLevel incomeLevel;
 
     private List<Product.Category> interests;
+
+    // ── Customer lifecycle ──────────────────────────────────────────────────
+    private Product.CustomerStatus customerStatus;
+
+    private Product.LoyaltyTier loyaltyTier;
+
+    @Min(value = 0, message = "Order count must be non-negative")
+    private Integer orderCount;
+
+    @Min(value = 0, message = "Account age must be non-negative")
+    private Integer accountAgeMonths;
 }

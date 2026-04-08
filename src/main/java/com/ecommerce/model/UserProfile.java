@@ -1,8 +1,6 @@
 package com.ecommerce.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,9 +9,7 @@ import java.util.List;
 @Entity
 @Table(name = "user_profiles")
 @Data
-@Builder
 @NoArgsConstructor
-@AllArgsConstructor
 public class UserProfile {
 
     @Id
@@ -31,7 +27,7 @@ public class UserProfile {
     @Enumerated(EnumType.STRING)
     private Product.Gender gender;
 
-    private String location;  // city or region
+    private String location;
 
     @Enumerated(EnumType.STRING)
     private Product.IncomeLevel incomeLevel;
@@ -40,5 +36,18 @@ public class UserProfile {
     @CollectionTable(name = "user_interests", joinColumns = @JoinColumn(name = "user_id"))
     @Enumerated(EnumType.STRING)
     @Column(name = "category")
-    private List<Product.Category> interests;  // preferred product categories
+    private List<Product.Category> interests;
+
+    // ── Customer lifecycle ──────────────────────────────────────────────────
+    @Enumerated(EnumType.STRING)
+    private Product.CustomerStatus customerStatus;
+
+    @Enumerated(EnumType.STRING)
+    private Product.LoyaltyTier loyaltyTier;
+
+    /** Total number of completed orders placed by this customer. */
+    private Integer orderCount;
+
+    /** How many months since account creation / first purchase. */
+    private Integer accountAgeMonths;
 }

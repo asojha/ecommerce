@@ -25,8 +25,8 @@ VALUES ('STANDARD', 'FASH-MCTSH', 'Men''s Casual T-Shirt', 'Comfortable everyday
 INSERT INTO products (product_type, sku, name, description, price, category, min_age, max_age, target_gender, min_income_level, image_url, active)
 VALUES ('STANDARD', 'FASH-KDRSS', 'Kids Summer Dress', 'Lightweight summer dress for girls', 24.99, 'FASHION', NULL, 12, 'FEMALE', 'LOW', 'https://example.com/kids-dress.jpg', true);
 
-INSERT INTO products (product_type, sku, name, description, price, category, min_age, max_age, target_gender, min_income_level, image_url, active)
-VALUES ('STANDARD', 'FASH-LXWTC', 'Luxury Watch', 'Swiss-made luxury timepiece', 2500.00, 'FASHION', 25, NULL, 'ALL', 'PREMIUM', 'https://example.com/luxury-watch.jpg', true);
+INSERT INTO products (product_type, sku, name, description, price, category, min_age, max_age, target_gender, min_income_level, image_url, active, min_loyalty_tier)
+VALUES ('STANDARD', 'FASH-LXWTC', 'Luxury Watch', 'Swiss-made luxury timepiece', 2500.00, 'FASHION', 25, NULL, 'ALL', 'PREMIUM', 'https://example.com/luxury-watch.jpg', true, 'GOLD');
 
 -- Sports
 INSERT INTO products (product_type, sku, name, description, price, category, min_age, max_age, target_gender, min_income_level, image_url, active)
@@ -70,8 +70,8 @@ VALUES ('STANDARD', 'HLTH-VTMD3', 'Vitamin D Supplements', 'High-strength vitami
 INSERT INTO products (product_type, sku, name, description, price, category, min_age, max_age, target_gender, min_income_level, image_url, active)
 VALUES ('STANDARD', 'TRVL-INSUR', 'Travel Insurance Premium', '12-month worldwide travel cover', 199.99, 'TRAVEL', 18, 70, 'ALL', 'MEDIUM', 'https://example.com/travel-insurance.jpg', true);
 
-INSERT INTO products (product_type, sku, name, description, price, category, min_age, max_age, target_gender, min_income_level, image_url, active)
-VALUES ('STANDARD', 'TRVL-MLDVS', 'Luxury Resort Package', '5-star Maldives holiday package', 3999.00, 'TRAVEL', 21, NULL, 'ALL', 'PREMIUM', 'https://example.com/resort.jpg', true);
+INSERT INTO products (product_type, sku, name, description, price, category, min_age, max_age, target_gender, min_income_level, image_url, active, min_customer_status, min_loyalty_tier)
+VALUES ('STANDARD', 'TRVL-MLDVS', 'Luxury Resort Package', '5-star Maldives holiday package', 3999.00, 'TRAVEL', 21, NULL, 'ALL', 'PREMIUM', 'https://example.com/resort.jpg', true, 'LOYAL', 'GOLD');
 
 -- Finance
 INSERT INTO products (product_type, sku, name, description, price, category, min_age, max_age, target_gender, min_income_level, image_url, active)
@@ -92,14 +92,24 @@ VALUES ('SUBSCRIPTION', 'HLTH-GYMM', 'Gym Membership', 'Unlimited access to all 
 INSERT INTO products (product_type, sku, name, description, price, category, min_age, max_age, target_gender, min_income_level, image_url, active, billing_cycle, trial_days)
 VALUES ('SUBSCRIPTION', 'BOOK-KLIM', 'eBook Library', 'Unlimited access to over 1 million eBooks', 14.99, 'BOOKS', 13, NULL, 'ALL', 'LOW', 'https://example.com/ebook-library.jpg', true, 'MONTHLY', 30);
 
-INSERT INTO products (product_type, sku, name, description, price, category, min_age, max_age, target_gender, min_income_level, image_url, active, billing_cycle, trial_days)
-VALUES ('SUBSCRIPTION', 'FINC-INVP', 'Managed Investment Plan', 'Professionally managed investment portfolio with monthly reporting', 29.99, 'FINANCE', 21, NULL, 'ALL', 'MEDIUM', 'https://example.com/invest-plan.jpg', true, 'MONTHLY', NULL);
+INSERT INTO products (product_type, sku, name, description, price, category, min_age, max_age, target_gender, min_income_level, image_url, active, billing_cycle, trial_days, min_customer_status, min_loyalty_tier)
+VALUES ('SUBSCRIPTION', 'FINC-INVP', 'Managed Investment Plan', 'Professionally managed investment portfolio with monthly reporting', 29.99, 'FINANCE', 21, NULL, 'ALL', 'MEDIUM', 'https://example.com/invest-plan.jpg', true, 'MONTHLY', NULL, 'RETURNING', 'BRONZE');
 
 INSERT INTO products (product_type, sku, name, description, price, category, min_age, max_age, target_gender, min_income_level, image_url, active, billing_cycle, trial_days)
 VALUES ('SUBSCRIPTION', 'HLTH-NUTR', 'Nutrition & Meal Plan', 'Weekly personalised meal plans with macro tracking', 19.99, 'HEALTH', 18, NULL, 'ALL', 'LOW', 'https://example.com/meal-plan.jpg', true, 'WEEKLY', 14);
 
-INSERT INTO products (product_type, sku, name, description, price, category, min_age, max_age, target_gender, min_income_level, image_url, active, billing_cycle, trial_days)
-VALUES ('SUBSCRIPTION', 'TRVL-LNGP', 'Airport Lounge Pass', 'Unlimited worldwide airport lounge access', 199.99, 'TRAVEL', 18, NULL, 'ALL', 'HIGH', 'https://example.com/lounge.jpg', true, 'ANNUAL', NULL);
+INSERT INTO products (product_type, sku, name, description, price, category, min_age, max_age, target_gender, min_income_level, image_url, active, billing_cycle, trial_days, min_customer_status, min_loyalty_tier)
+VALUES ('SUBSCRIPTION', 'TRVL-LNGP', 'Airport Lounge Pass', 'Unlimited worldwide airport lounge access', 199.99, 'TRAVEL', 18, NULL, 'ALL', 'HIGH', 'https://example.com/lounge.jpg', true, 'ANNUAL', NULL, 'LOYAL', 'SILVER');
+
+-- Lifecycle-exclusive products
+INSERT INTO products (product_type, sku, name, description, price, category, min_age, max_age, target_gender, min_income_level, image_url, active, min_customer_status, min_loyalty_tier)
+VALUES ('STANDARD', 'FINC-PLAT', 'Platinum Rewards Card', 'Exclusive card with concierge, travel credits and 5% cashback', 0.00, 'FINANCE', 21, NULL, 'ALL', 'HIGH', 'https://example.com/platinum-card.jpg', true, 'LOYAL', 'PLATINUM');
+
+INSERT INTO products (product_type, sku, name, description, price, category, min_age, max_age, target_gender, min_income_level, image_url, active, min_customer_status)
+VALUES ('STANDARD', 'ELEC-WLCM', 'Welcome Starter Kit', 'Essential accessories bundle for new customers', 49.99, 'ELECTRONICS', NULL, NULL, 'ALL', 'LOW', 'https://example.com/welcome-kit.jpg', true, 'NEW');
+
+INSERT INTO products (product_type, sku, name, description, price, category, min_age, max_age, target_gender, min_income_level, image_url, active, min_customer_status, min_loyalty_tier)
+VALUES ('SUBSCRIPTION', 'HLTH-VPWL', 'VIP Wellness Programme', 'Personal trainer, dietitian and premium health tracking', 99.99, 'HEALTH', 18, NULL, 'ALL', 'HIGH', 'https://example.com/vip-wellness.jpg', true, 'VIP', 'GOLD');
 
 -- ============================================================
 -- Product Tags  (sku FK)
@@ -175,6 +185,18 @@ INSERT INTO product_tags (sku, tag) VALUES ('FINC-CCARD', 'credit');
 
 INSERT INTO product_tags (sku, tag) VALUES ('FINC-INVST', 'FINANCE');
 INSERT INTO product_tags (sku, tag) VALUES ('FINC-INVST', 'investment');
+
+INSERT INTO product_tags (sku, tag) VALUES ('FINC-PLAT', 'FINANCE');
+INSERT INTO product_tags (sku, tag) VALUES ('FINC-PLAT', 'credit');
+INSERT INTO product_tags (sku, tag) VALUES ('FINC-PLAT', 'luxury');
+
+INSERT INTO product_tags (sku, tag) VALUES ('ELEC-WLCM', 'ELECTRONICS');
+INSERT INTO product_tags (sku, tag) VALUES ('ELEC-WLCM', 'welcome');
+
+INSERT INTO product_tags (sku, tag) VALUES ('HLTH-VPWL', 'HEALTH');
+INSERT INTO product_tags (sku, tag) VALUES ('HLTH-VPWL', 'fitness');
+INSERT INTO product_tags (sku, tag) VALUES ('HLTH-VPWL', 'wellness');
+INSERT INTO product_tags (sku, tag) VALUES ('HLTH-VPWL', 'subscription');
 
 -- Subscription product tags
 INSERT INTO product_tags (sku, tag) VALUES ('ELEC-MUSP', 'ELECTRONICS');

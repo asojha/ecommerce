@@ -165,9 +165,11 @@ function renderTable() {
     const isSub = p.productType === 'SUBSCRIPTION';
     const typeLabel = isSub ? 'Subscription' : 'Standard';
     const typeBadge = isSub ? 'badge-subscription' : 'badge-standard';
-    const billing = isSub && p.billingCycle ? formatEnum(p.billingCycle) : '—';
-    const trial   = isSub && p.trialDays != null ? `${p.trialDays}d` : '—';
+    const billing   = isSub && p.billingCycle ? formatEnum(p.billingCycle) : '—';
+    const trial     = isSub && p.trialDays != null ? `${p.trialDays}d` : '—';
     const priceLabel = isSub ? `$${Number(p.price).toFixed(2)}/cycle` : `$${Number(p.price).toFixed(2)}`;
+    const minStatus = p.minCustomerStatus ? formatEnum(p.minCustomerStatus) : '—';
+    const minTier   = p.minLoyaltyTier   ? formatEnum(p.minLoyaltyTier)   : '—';
 
     return `
     <tr>
@@ -179,6 +181,8 @@ function renderTable() {
       <td>${billing}</td>
       <td>${trial}</td>
       <td>${ageRange(p)}</td>
+      <td>${minStatus}</td>
+      <td>${minTier}</td>
       <td><span class="badge ${p.active ? 'badge-active' : 'badge-inactive'}">${p.active ? 'Active' : 'Inactive'}</span></td>
       <td>
         <div class="row-actions">
@@ -231,7 +235,9 @@ function openEditPanel(sku) {
   document.getElementById('field-income').value        = p.minIncomeLevel || '';
   document.getElementById('field-tags').value          = (p.tags || []).join(', ');
   document.getElementById('field-image-url').value     = p.imageUrl || '';
-  document.getElementById('field-active').checked      = p.active;
+  document.getElementById('field-active').checked               = p.active;
+  document.getElementById('field-min-customer-status').value   = p.minCustomerStatus || '';
+  document.getElementById('field-min-loyalty-tier').value      = p.minLoyaltyTier    || '';
 
   if (p.productType === 'SUBSCRIPTION') {
     document.getElementById('field-billing-cycle').value = p.billingCycle || '';
@@ -286,7 +292,9 @@ function buildPayload() {
     minIncomeLevel: document.getElementById('field-income').value || null,
     tags,
     imageUrl:       document.getElementById('field-image-url').value.trim() || null,
-    active:         document.getElementById('field-active').checked
+    active:             document.getElementById('field-active').checked,
+    minCustomerStatus:  document.getElementById('field-min-customer-status').value || null,
+    minLoyaltyTier:     document.getElementById('field-min-loyalty-tier').value    || null
   };
 
   if (type === 'SUBSCRIPTION') {

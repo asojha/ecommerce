@@ -46,6 +46,8 @@ public class ProductService {
         existing.setTags(updated.getTags());
         existing.setImageUrl(updated.getImageUrl());
         existing.setActive(updated.isActive());
+        existing.setMinCustomerStatus(updated.getMinCustomerStatus());
+        existing.setMinLoyaltyTier(updated.getMinLoyaltyTier());
 
         if (existing instanceof SubscriptionProduct existingSub
                 && updated instanceof SubscriptionProduct updatedSub) {

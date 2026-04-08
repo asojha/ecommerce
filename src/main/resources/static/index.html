@@ -59,12 +59,14 @@
               <th>Billing</th>
               <th>Trial</th>
               <th>Age Range</th>
+              <th>Min Status</th>
+              <th>Min Tier</th>
               <th>Status</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody id="products-body">
-            <tr><td colspan="10" class="empty">Loading…</td></tr>
+            <tr><td colspan="12" class="empty">Loading…</td></tr>
           </tbody>
         </table>
       </div>
@@ -184,6 +186,32 @@
         <div class="form-group">
           <label for="field-image-url">Image URL</label>
           <input id="field-image-url" class="input" type="url" placeholder="https://…" />
+        </div>
+
+        <!-- Customer lifecycle eligibility -->
+        <div class="section-divider" style="margin-top:4px">Customer Lifecycle Eligibility</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="field-min-customer-status">Min Customer Status</label>
+            <select id="field-min-customer-status" class="input">
+              <option value="">Any</option>
+              <option value="NEW">New</option>
+              <option value="RETURNING">Returning</option>
+              <option value="LOYAL">Loyal</option>
+              <option value="VIP">VIP</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="field-min-loyalty-tier">Min Loyalty Tier</label>
+            <select id="field-min-loyalty-tier" class="input">
+              <option value="">Any</option>
+              <option value="NONE">None</option>
+              <option value="BRONZE">Bronze</option>
+              <option value="SILVER">Silver</option>
+              <option value="GOLD">Gold</option>
+              <option value="PLATINUM">Platinum</option>
+            </select>
+          </div>
         </div>
 
         <div class="form-group form-check">
