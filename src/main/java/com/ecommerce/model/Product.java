@@ -1,13 +1,10 @@
 package com.ecommerce.model;
 
-import com.ecommerce.model.SubscriptionProduct;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -23,14 +20,12 @@ import java.util.List;
     @JsonSubTypes.Type(value = SubscriptionProduct.class, name = "SUBSCRIPTION")
 })
 @Data
-@SuperBuilder
 @NoArgsConstructor
-@AllArgsConstructor
 public class Product {
 
     @Id
     @Column(name = "sku", nullable = false, unique = true, length = 20)
-    private String sku;  // alphanumeric, e.g. ELEC-IP15P
+    private String sku;
 
     @Column(nullable = false)
     private String name;
@@ -43,7 +38,6 @@ public class Product {
     @Enumerated(EnumType.STRING)
     private Category category;
 
-    // Targeting criteria — null means "any"
     private Integer minAge;
     private Integer maxAge;
 

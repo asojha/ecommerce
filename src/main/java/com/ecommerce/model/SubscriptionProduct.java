@@ -1,18 +1,18 @@
 package com.ecommerce.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
+import lombok.Setter;
+import lombok.ToString;
 
 @Entity
 @DiscriminatorValue("SUBSCRIPTION")
-@Data
-@SuperBuilder
+@Getter
+@Setter
 @NoArgsConstructor
-@AllArgsConstructor
+@ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 public class SubscriptionProduct extends Product {
 
