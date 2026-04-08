@@ -2,6 +2,7 @@ package com.ecommerce.model;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,47 +22,69 @@ import java.util.List;
 })
 @Data
 @NoArgsConstructor
+@Schema(description = "A standard (one-time purchase) product in the catalogue")
 public class Product {
 
     @Id
     @Column(name = "sku", nullable = false, unique = true, length = 20)
+    @Schema(description = "Unique alphanumeric SKU. Auto-generated from category prefix if omitted",
+            example = "ELEC-IP15P")
     private String sku;
 
     @Column(nullable = false)
+    @Schema(description = "Product display name", example = "iPhone 15 Pro", requiredMode = Schema.RequiredMode.REQUIRED)
     private String name;
 
+    @Schema(description = "Optional long-form description", example = "Latest Apple smartphone with A17 chip")
     private String description;
 
     @Column(nullable = false)
+    @Schema(description = "Price in USD", example = "999.99", requiredMode = Schema.RequiredMode.REQUIRED)
     private BigDecimal price;
 
     @Enumerated(EnumType.STRING)
+    @Schema(description = "Product category", example = "ELECTRONICS", requiredMode = Schema.RequiredMode.REQUIRED)
     private Category category;
 
+    @Schema(description = "Minimum age required to be eligible for this product (inclusive); null = no minimum",
+            example = "18")
     private Integer minAge;
+
+    @Schema(description = "Maximum age eligible for this product (inclusive); null = no maximum", example = "65")
     private Integer maxAge;
 
     @Enumerated(EnumType.STRING)
+    @Schema(description = "Gender this product targets; null or ALL means no gender restriction",
+            example = "ALL", allowableValues = {"MALE", "FEMALE", "ALL"})
     private Gender targetGender;
 
     @Enumerated(EnumType.STRING)
+    @Schema(description = "Minimum income level required; null = any income",
+            example = "MEDIUM", allowableValues = {"LOW", "MEDIUM", "HIGH", "PREMIUM"})
     private IncomeLevel minIncomeLevel;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "product_tags", joinColumns = @JoinColumn(name = "sku"))
     @Column(name = "tag")
+    @Schema(description = "Free-form tags used for soft-boost matching in the recommendation engine",
+            example = "[\"tech\", \"premium\"]")
     private List<String> tags;
 
+    @Schema(description = "URL of the product image")
     private String imageUrl;
+
+    @Schema(description = "Whether the product appears in the catalogue and recommendations. " +
+                          "DELETE sets this to false (soft delete)", example = "true")
     private boolean active = true;
 
-    // ── Customer lifecycle eligibility ──────────────────────────────────────
-    /** Minimum lifecycle stage required; null = any customer. */
     @Enumerated(EnumType.STRING)
+    @Schema(description = "Minimum customer lifecycle stage required; null = any status",
+            example = "RETURNING", allowableValues = {"NEW", "RETURNING", "LOYAL", "VIP", "AT_RISK"})
     private CustomerStatus minCustomerStatus;
 
-    /** Minimum loyalty tier required; null = any tier. */
     @Enumerated(EnumType.STRING)
+    @Schema(description = "Minimum loyalty tier required; null = any tier",
+            example = "NONE", allowableValues = {"NONE", "BRONZE", "SILVER", "GOLD", "PLATINUM"})
     private LoyaltyTier minLoyaltyTier;
 
     public enum Category {
