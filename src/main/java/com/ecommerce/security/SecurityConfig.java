@@ -33,7 +33,7 @@ public class SecurityConfig {
                 ).permitAll()
                 // Public: Apple webhooks (secured by JWS payload signature)
                 .requestMatchers("/api/webhooks/apple").permitAll()
-                // Public: existing web UI, H2 console, Swagger
+                // Public: existing web admin UI and its APIs (no mobile auth needed)
                 .requestMatchers(
                     "/",
                     "/index.html",
@@ -42,7 +42,10 @@ public class SecurityConfig {
                     "/h2-console/**",
                     "/swagger-ui/**",
                     "/swagger-ui.html",
-                    "/api-docs/**"
+                    "/api-docs/**",
+                    "/api/products/**",
+                    "/api/recommendations/**",
+                    "/api/admin/store-mappings/**"
                 ).permitAll()
                 // Everything else requires JWT
                 .anyRequest().authenticated()
