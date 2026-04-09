@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
 
 @Data
@@ -52,6 +53,12 @@ public class ProductResponse {
             example = "30")
     private Integer trialDays;
 
+    @Schema(description = "Timestamp when the product was first created")
+    private Instant createdAt;
+
+    @Schema(description = "Timestamp of the most recent update")
+    private Instant updatedAt;
+
     public static ProductResponse from(Product product, int matchScore) {
         ProductResponseBuilder builder = ProductResponse.builder()
                 .sku(product.getSku())
@@ -62,7 +69,9 @@ public class ProductResponse {
                 .category(product.getCategory())
                 .tags(product.getTags())
                 .imageUrl(product.getImageUrl())
-                .matchScore(matchScore);
+                .matchScore(matchScore)
+                .createdAt(product.getCreatedAt())
+                .updatedAt(product.getUpdatedAt());
 
         if (product instanceof SubscriptionProduct sub) {
             builder.billingCycle(sub.getBillingCycle())

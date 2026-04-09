@@ -217,6 +217,17 @@ textarea.input { resize: vertical; }
   padding-left: 24px;
 }
 
+/* ── Read-only inputs (timestamps) ── */
+.input-readonly {
+  background: var(--bg);
+  color: var(--muted);
+  cursor: default;
+}
+.input-readonly:focus { border-color: var(--border); box-shadow: none; }
+
+/* ── Date cells in table ── */
+.date-cell { color: var(--muted); font-size: 12px; white-space: nowrap; }
+
 .row-actions { display: flex; gap: 6px; }
 
 /* ── Slide-in panel ── */

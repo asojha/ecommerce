@@ -265,7 +265,7 @@ function renderTable() {
   });
 
   if (filtered.length === 0) {
-    productsBody.innerHTML = `<tr><td colspan="13" class="empty">No products found.</td></tr>`;
+    productsBody.innerHTML = `<tr><td colspan="15" class="empty">No products found.</td></tr>`;
     return;
   }
 
@@ -302,6 +302,8 @@ function renderTable() {
       <td>${minStatus}</td>
       <td>${minTier}</td>
       <td class="channel-cell">${channelBadges}</td>
+      <td class="date-cell">${formatDate(p.createdAt)}</td>
+      <td class="date-cell">${formatDate(p.updatedAt)}</td>
       <td><span class="badge ${p.active ? 'badge-active' : 'badge-inactive'}">${p.active ? 'Active' : 'Inactive'}</span></td>
       <td>
         <div class="row-actions">
@@ -323,6 +325,7 @@ function openAddPanel() {
   document.getElementById('field-sku').disabled  = false;
   document.getElementById('field-active').checked = true;
   resetChannels();
+  document.getElementById('timestamps-section').classList.add('hidden');
   clearErrors();
   panel.classList.add('open');
   main.classList.add('panel-open');
@@ -364,6 +367,9 @@ function openEditPanel(sku) {
   }
 
   setChannels(sku);
+  document.getElementById('timestamps-section').classList.remove('hidden');
+  document.getElementById('field-created-at').value = formatDate(p.createdAt);
+  document.getElementById('field-updated-at').value = formatDate(p.updatedAt);
   clearErrors();
   panel.classList.add('open');
   main.classList.add('panel-open');
@@ -378,6 +384,9 @@ function closePanel() {
   document.querySelectorAll('.type-tab').forEach(t => t.disabled = false);
   setActiveTab('STANDARD');
   resetChannels();
+  document.getElementById('timestamps-section').classList.add('hidden');
+  document.getElementById('field-created-at').value = '';
+  document.getElementById('field-updated-at').value = '';
   clearErrors();
 }
 
@@ -509,6 +518,13 @@ function ageRange(p) {
 function intOrNull(val) {
   const n = parseInt(val, 10);
   return isNaN(n) ? null : n;
+}
+
+function formatDate(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
+       + ' ' + d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
 }
 
 function escHtml(str) {
