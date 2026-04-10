@@ -1,5 +1,6 @@
 /* ── Constants ── */
-const API = '/api/products';
+const API          = '/api/products';
+const MAPPINGS_API = '/api/admin/store-mappings';
 
 const CATEGORIES = [
   'ELECTRONICS', 'FASHION', 'HOME_AND_KITCHEN', 'SPORTS',
@@ -8,9 +9,10 @@ const CATEGORIES = [
 ];
 
 /* ── State ── */
-let allProducts = [];
-let editingSku  = null;
-let deleteSku   = null;
+let allProducts  = [];
+let allMappings  = [];   // full list of store mappings
+let editingSku   = null;
+let deleteSku    = null;
 
 /* ── DOM refs ── */
 const main          = document.querySelector('.main');
@@ -30,8 +32,9 @@ const productTypeField = document.getElementById('field-product-type');
 
 /* ── Bootstrap ── */
 populateCategoryOptions();
-loadProducts();
+loadAll();
 initTypeTabs();
+initChannelCheckboxes();
 
 /* ── Event listeners ── */
 document.getElementById('btn-add').addEventListener('click', openAddPanel);
@@ -74,6 +77,45 @@ function setActiveTab(type) {
       : 'Price ($) <span class="req">*</span>';
 }
 
+/* ── Channel checkboxes ── */
+function initChannelCheckboxes() {
+  document.getElementById('ch-ios').addEventListener('change', e => {
+    document.getElementById('ios-id-wrap').classList.toggle('hidden', !e.target.checked);
+  });
+  document.getElementById('ch-android').addEventListener('change', e => {
+    document.getElementById('android-id-wrap').classList.toggle('hidden', !e.target.checked);
+  });
+}
+
+function setChannels(sku) {
+  const skuMappings = allMappings.filter(m => m.sku === sku);
+  const apple  = skuMappings.find(m => m.store === 'APPLE');
+  const google = skuMappings.find(m => m.store === 'GOOGLE');
+
+  const iosChk     = document.getElementById('ch-ios');
+  const androidChk = document.getElementById('ch-android');
+  const iosWrap    = document.getElementById('ios-id-wrap');
+  const androidWrap= document.getElementById('android-id-wrap');
+
+  iosChk.checked = !!apple;
+  iosWrap.classList.toggle('hidden', !apple);
+  document.getElementById('field-ios-product-id').value = apple ? apple.storeProductId : '';
+
+  androidChk.checked = !!google;
+  androidWrap.classList.toggle('hidden', !google);
+  document.getElementById('field-android-product-id').value = google ? google.storeProductId : '';
+}
+
+function resetChannels() {
+  document.getElementById('ch-web').checked     = true;
+  document.getElementById('ch-ios').checked     = false;
+  document.getElementById('ch-android').checked = false;
+  document.getElementById('ios-id-wrap').classList.add('hidden');
+  document.getElementById('android-id-wrap').classList.add('hidden');
+  document.getElementById('field-ios-product-id').value     = '';
+  document.getElementById('field-android-product-id').value = '';
+}
+
 /* ── Category helpers ── */
 function populateCategoryOptions() {
   const formSelect = document.getElementById('field-category');
@@ -88,15 +130,20 @@ function populateCategoryOptions() {
 }
 
 /* ── API calls ── */
-async function loadProducts() {
+async function loadAll() {
   try {
-    const res = await fetch(API + '?includeInactive=true');
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    allProducts = await res.json();
+    const [prodRes, mapRes] = await Promise.all([
+      fetch(API + '?includeInactive=true'),
+      fetch(MAPPINGS_API)
+    ]);
+    if (!prodRes.ok) throw new Error(`Products HTTP ${prodRes.status}`);
+    if (!mapRes.ok)  throw new Error(`Mappings HTTP ${mapRes.status}`);
+    allProducts = await prodRes.json();
+    allMappings = await mapRes.json();
     renderTable();
   } catch (e) {
-    showToast('Failed to load products: ' + e.message, 'error');
-    productsBody.innerHTML = `<tr><td colspan="10" class="empty">Could not load products.</td></tr>`;
+    showToast('Failed to load data: ' + e.message, 'error');
+    productsBody.innerHTML = `<tr><td colspan="13" class="empty">Could not load products.</td></tr>`;
   }
 }
 
@@ -119,11 +166,72 @@ async function handleSubmit(e) {
       const err = await res.json().catch(() => ({}));
       throw new Error(err.error || `HTTP ${res.status}`);
     }
+    const saved = await res.json();
+    const sku = saved.sku || editingSku;
+
+    await syncStoreMappings(sku);
+
     showToast(isEdit ? 'Product updated.' : 'Product created.', 'success');
     closePanel();
-    await loadProducts();
+    await loadAll();
   } catch (e) {
     showToast('Save failed: ' + e.message, 'error');
+  }
+}
+
+async function syncStoreMappings(sku) {
+  const existing = allMappings.filter(m => m.sku === sku);
+  const existingApple  = existing.find(m => m.store === 'APPLE');
+  const existingGoogle = existing.find(m => m.store === 'GOOGLE');
+
+  const wantIos     = document.getElementById('ch-ios').checked;
+  const wantAndroid = document.getElementById('ch-android').checked;
+  const iosId       = document.getElementById('field-ios-product-id').value.trim();
+  const androidId   = document.getElementById('field-android-product-id').value.trim();
+
+  // Apple
+  if (wantIos && iosId) {
+    if (existingApple) {
+      // update: delete old, create new (API has no PUT)
+      if (existingApple.storeProductId !== iosId) {
+        await fetch(`${MAPPINGS_API}/${existingApple.id}`, { method: 'DELETE' });
+        await fetch(MAPPINGS_API, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sku, store: 'APPLE', storeProductId: iosId })
+        });
+      }
+    } else {
+      await fetch(MAPPINGS_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sku, store: 'APPLE', storeProductId: iosId })
+      });
+    }
+  } else if (!wantIos && existingApple) {
+    await fetch(`${MAPPINGS_API}/${existingApple.id}`, { method: 'DELETE' });
+  }
+
+  // Google / Android
+  if (wantAndroid && androidId) {
+    if (existingGoogle) {
+      if (existingGoogle.storeProductId !== androidId) {
+        await fetch(`${MAPPINGS_API}/${existingGoogle.id}`, { method: 'DELETE' });
+        await fetch(MAPPINGS_API, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sku, store: 'GOOGLE', storeProductId: androidId })
+        });
+      }
+    } else {
+      await fetch(MAPPINGS_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sku, store: 'GOOGLE', storeProductId: androidId })
+      });
+    }
+  } else if (!wantAndroid && existingGoogle) {
+    await fetch(`${MAPPINGS_API}/${existingGoogle.id}`, { method: 'DELETE' });
   }
 }
 
@@ -134,7 +242,7 @@ async function confirmDelete() {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     showToast('Product deleted.', 'success');
     closeModal();
-    await loadProducts();
+    await loadAll();
   } catch (e) {
     showToast('Delete failed: ' + e.message, 'error');
     closeModal();
@@ -143,33 +251,43 @@ async function confirmDelete() {
 
 /* ── Table rendering ── */
 function renderTable() {
-  const query     = searchInput.value.trim().toLowerCase();
-  const catFilter = filterCat.value;
+  const query      = searchInput.value.trim().toLowerCase();
+  const catFilter  = filterCat.value;
   const typeFilter = filterType.value;
-  const inclInact = showInactive.checked;
+  const inclInact  = showInactive.checked;
 
   const filtered = allProducts.filter(p => {
     if (!inclInact && !p.active) return false;
-    if (catFilter && p.category !== catFilter) return false;
-    if (typeFilter && p.productType !== typeFilter) return false;
+    if (catFilter  && p.category    !== catFilter)  return false;
+    if (typeFilter && p.productType !== typeFilter)  return false;
     if (query && !p.name.toLowerCase().includes(query) && !p.sku.toLowerCase().includes(query)) return false;
     return true;
   });
 
   if (filtered.length === 0) {
-    productsBody.innerHTML = `<tr><td colspan="10" class="empty">No products found.</td></tr>`;
+    productsBody.innerHTML = `<tr><td colspan="15" class="empty">No products found.</td></tr>`;
     return;
   }
 
   productsBody.innerHTML = filtered.map(p => {
-    const isSub = p.productType === 'SUBSCRIPTION';
-    const typeLabel = isSub ? 'Subscription' : 'Standard';
-    const typeBadge = isSub ? 'badge-subscription' : 'badge-standard';
-    const billing   = isSub && p.billingCycle ? formatEnum(p.billingCycle) : '—';
-    const trial     = isSub && p.trialDays != null ? `${p.trialDays}d` : '—';
+    const isSub      = p.productType === 'SUBSCRIPTION';
+    const typeLabel  = isSub ? 'Subscription' : 'Standard';
+    const typeBadge  = isSub ? 'badge-subscription' : 'badge-standard';
+    const billing    = isSub && p.billingCycle ? formatEnum(p.billingCycle) : '—';
+    const trial      = isSub && p.trialDays != null ? `${p.trialDays}d` : '—';
     const priceLabel = isSub ? `$${Number(p.price).toFixed(2)}/cycle` : `$${Number(p.price).toFixed(2)}`;
-    const minStatus = p.minCustomerStatus ? formatEnum(p.minCustomerStatus) : '—';
-    const minTier   = p.minLoyaltyTier   ? formatEnum(p.minLoyaltyTier)   : '—';
+    const minStatus  = p.minCustomerStatus ? formatEnum(p.minCustomerStatus) : '—';
+    const minTier    = p.minLoyaltyTier    ? formatEnum(p.minLoyaltyTier)    : '—';
+
+    const skuMappings = allMappings.filter(m => m.sku === p.sku);
+    const hasWeb      = true; // all products are available on web
+    const hasIos      = skuMappings.some(m => m.store === 'APPLE');
+    const hasAndroid  = skuMappings.some(m => m.store === 'GOOGLE');
+    const channelBadges = [
+      hasWeb      ? '<span class="badge badge-ch-web">Web</span>'         : '',
+      hasIos      ? '<span class="badge badge-ch-ios">iOS</span>'         : '',
+      hasAndroid  ? '<span class="badge badge-ch-android">Android</span>' : '',
+    ].join(' ');
 
     return `
     <tr>
@@ -183,6 +301,9 @@ function renderTable() {
       <td>${ageRange(p)}</td>
       <td>${minStatus}</td>
       <td>${minTier}</td>
+      <td class="channel-cell">${channelBadges}</td>
+      <td class="date-cell">${formatDate(p.createdAt)}</td>
+      <td class="date-cell">${formatDate(p.updatedAt)}</td>
       <td><span class="badge ${p.active ? 'badge-active' : 'badge-inactive'}">${p.active ? 'Active' : 'Inactive'}</span></td>
       <td>
         <div class="row-actions">
@@ -201,8 +322,10 @@ function openAddPanel() {
   document.getElementById('btn-submit').textContent = 'Create Product';
   form.reset();
   setActiveTab('STANDARD');
-  document.getElementById('field-sku').disabled   = false;
-  document.getElementById('field-active').checked  = true;
+  document.getElementById('field-sku').disabled  = false;
+  document.getElementById('field-active').checked = true;
+  resetChannels();
+  document.getElementById('timestamps-section').classList.add('hidden');
   clearErrors();
   panel.classList.add('open');
   main.classList.add('panel-open');
@@ -222,28 +345,31 @@ function openEditPanel(sku) {
   skuField.value    = p.sku;
   skuField.disabled = true;
 
-  // Type tabs locked on edit
   document.querySelectorAll('.type-tab').forEach(t => t.disabled = true);
 
-  document.getElementById('field-name').value          = p.name || '';
-  document.getElementById('field-description').value   = p.description || '';
-  document.getElementById('field-price').value         = p.price ?? '';
-  document.getElementById('field-category').value      = p.category || '';
-  document.getElementById('field-min-age').value       = p.minAge ?? '';
-  document.getElementById('field-max-age').value       = p.maxAge ?? '';
-  document.getElementById('field-gender').value        = p.targetGender || '';
-  document.getElementById('field-income').value        = p.minIncomeLevel || '';
-  document.getElementById('field-tags').value          = (p.tags || []).join(', ');
-  document.getElementById('field-image-url').value     = p.imageUrl || '';
-  document.getElementById('field-active').checked               = p.active;
-  document.getElementById('field-min-customer-status').value   = p.minCustomerStatus || '';
-  document.getElementById('field-min-loyalty-tier').value      = p.minLoyaltyTier    || '';
+  document.getElementById('field-name').value        = p.name || '';
+  document.getElementById('field-description').value = p.description || '';
+  document.getElementById('field-price').value       = p.price ?? '';
+  document.getElementById('field-category').value    = p.category || '';
+  document.getElementById('field-min-age').value     = p.minAge ?? '';
+  document.getElementById('field-max-age').value     = p.maxAge ?? '';
+  document.getElementById('field-gender').value      = p.targetGender || '';
+  document.getElementById('field-income').value      = p.minIncomeLevel || '';
+  document.getElementById('field-tags').value        = (p.tags || []).join(', ');
+  document.getElementById('field-image-url').value   = p.imageUrl || '';
+  document.getElementById('field-active').checked              = p.active;
+  document.getElementById('field-min-customer-status').value  = p.minCustomerStatus || '';
+  document.getElementById('field-min-loyalty-tier').value     = p.minLoyaltyTier    || '';
 
   if (p.productType === 'SUBSCRIPTION') {
     document.getElementById('field-billing-cycle').value = p.billingCycle || '';
-    document.getElementById('field-trial-days').value   = p.trialDays ?? '';
+    document.getElementById('field-trial-days').value    = p.trialDays ?? '';
   }
 
+  setChannels(sku);
+  document.getElementById('timestamps-section').classList.remove('hidden');
+  document.getElementById('field-created-at').value = formatDate(p.createdAt);
+  document.getElementById('field-updated-at').value = formatDate(p.updatedAt);
   clearErrors();
   panel.classList.add('open');
   main.classList.add('panel-open');
@@ -257,6 +383,10 @@ function closePanel() {
   document.getElementById('field-sku').disabled = false;
   document.querySelectorAll('.type-tab').forEach(t => t.disabled = false);
   setActiveTab('STANDARD');
+  resetChannels();
+  document.getElementById('timestamps-section').classList.add('hidden');
+  document.getElementById('field-created-at').value = '';
+  document.getElementById('field-updated-at').value = '';
   clearErrors();
 }
 
@@ -291,7 +421,7 @@ function buildPayload() {
     targetGender:   document.getElementById('field-gender').value || null,
     minIncomeLevel: document.getElementById('field-income').value || null,
     tags,
-    imageUrl:       document.getElementById('field-image-url').value.trim() || null,
+    imageUrl:           document.getElementById('field-image-url').value.trim() || null,
     active:             document.getElementById('field-active').checked,
     minCustomerStatus:  document.getElementById('field-min-customer-status').value || null,
     minLoyaltyTier:     document.getElementById('field-min-loyalty-tier').value    || null
@@ -338,6 +468,20 @@ function validateForm() {
     }
   }
 
+  if (document.getElementById('ch-ios').checked) {
+    if (!document.getElementById('field-ios-product-id').value.trim()) {
+      setError('err-ios-product-id', 'Enter the App Store product ID.');
+      valid = false;
+    }
+  }
+
+  if (document.getElementById('ch-android').checked) {
+    if (!document.getElementById('field-android-product-id').value.trim()) {
+      setError('err-android-product-id', 'Enter the Play Store product ID.');
+      valid = false;
+    }
+  }
+
   return valid;
 }
 
@@ -374,6 +518,13 @@ function ageRange(p) {
 function intOrNull(val) {
   const n = parseInt(val, 10);
   return isNaN(n) ? null : n;
+}
+
+function formatDate(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
+       + ' ' + d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
 }
 
 function escHtml(str) {

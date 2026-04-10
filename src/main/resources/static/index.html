@@ -61,12 +61,15 @@
               <th>Age Range</th>
               <th>Min Status</th>
               <th>Min Tier</th>
+              <th>Channels</th>
+              <th>Created</th>
+              <th>Updated</th>
               <th>Status</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody id="products-body">
-            <tr><td colspan="12" class="empty">Loading…</td></tr>
+            <tr><td colspan="15" class="empty">Loading…</td></tr>
           </tbody>
         </table>
       </div>
@@ -219,6 +222,55 @@
             <input type="checkbox" id="field-active" checked />
             Active (visible to customers)
           </label>
+        </div>
+
+        <!-- Timestamps (read-only, only shown when editing) -->
+        <div id="timestamps-section" class="hidden">
+          <div class="section-divider" style="margin-top:4px">Dates</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Created</label>
+              <input id="field-created-at" class="input input-readonly" type="text" readonly />
+            </div>
+            <div class="form-group">
+              <label>Last Updated</label>
+              <input id="field-updated-at" class="input input-readonly" type="text" readonly />
+            </div>
+          </div>
+        </div>
+
+        <!-- Sales channels -->
+        <div class="section-divider" style="margin-top:4px">Sales Channels</div>
+
+        <div class="form-group">
+          <label class="toggle-label">
+            <input type="checkbox" id="ch-web" checked />
+            Web
+          </label>
+        </div>
+
+        <div class="form-group">
+          <label class="toggle-label">
+            <input type="checkbox" id="ch-ios" />
+            iOS App Store
+          </label>
+          <div id="ios-id-wrap" class="channel-id-wrap hidden">
+            <input id="field-ios-product-id" class="input" type="text"
+                   placeholder="e.g. com.example.ecommerce.premium_monthly" />
+            <span class="field-error" id="err-ios-product-id"></span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="toggle-label">
+            <input type="checkbox" id="ch-android" />
+            Android Play Store
+          </label>
+          <div id="android-id-wrap" class="channel-id-wrap hidden">
+            <input id="field-android-product-id" class="input" type="text"
+                   placeholder="e.g. premium_monthly" />
+            <span class="field-error" id="err-android-product-id"></span>
+          </div>
         </div>
 
         <div class="form-actions">

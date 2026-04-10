@@ -203,6 +203,31 @@ textarea.input { resize: vertical; }
 .badge-standard     { background: #dbeafe; color: #1d4ed8; }
 .badge-subscription { background: #fef3c7; color: #92400e; }
 
+/* ── Channel badges ── */
+.badge-ch-web     { background: #e0f2fe; color: #0369a1; }
+.badge-ch-ios     { background: #f3e8ff; color: #7e22ce; }
+.badge-ch-android { background: #dcfce7; color: #15803d; }
+
+.channel-cell { white-space: nowrap; }
+.channel-cell .badge { margin-right: 3px; }
+
+/* ── Channel ID input ── */
+.channel-id-wrap {
+  margin-top: 8px;
+  padding-left: 24px;
+}
+
+/* ── Read-only inputs (timestamps) ── */
+.input-readonly {
+  background: var(--bg);
+  color: var(--muted);
+  cursor: default;
+}
+.input-readonly:focus { border-color: var(--border); box-shadow: none; }
+
+/* ── Date cells in table ── */
+.date-cell { color: var(--muted); font-size: 12px; white-space: nowrap; }
+
 .row-actions { display: flex; gap: 6px; }
 
 /* ── Slide-in panel ── */

@@ -222,3 +222,17 @@ INSERT INTO product_tags (sku, tag) VALUES ('HLTH-NUTR', 'subscription');
 INSERT INTO product_tags (sku, tag) VALUES ('TRVL-LNGP', 'TRAVEL');
 INSERT INTO product_tags (sku, tag) VALUES ('TRVL-LNGP', 'luxury');
 INSERT INTO product_tags (sku, tag) VALUES ('TRVL-LNGP', 'subscription');
+
+-- ============================================================
+-- Apple App Store product ID mappings
+-- ============================================================
+INSERT INTO product_store_mappings (sku, store, store_product_id) VALUES ('ELEC-MUSP',  'APPLE', 'com.example.ecommerce.music_monthly');
+INSERT INTO product_store_mappings (sku, store, store_product_id) VALUES ('HLTH-GYMM',  'APPLE', 'com.example.ecommerce.gym_monthly');
+INSERT INTO product_store_mappings (sku, store, store_product_id) VALUES ('BOOK-KLIM',  'APPLE', 'com.example.ecommerce.ebooks_monthly');
+INSERT INTO product_store_mappings (sku, store, store_product_id) VALUES ('FINC-INVP',  'APPLE', 'com.example.ecommerce.invest_plan_monthly');
+INSERT INTO product_store_mappings (sku, store, store_product_id) VALUES ('HLTH-NUTR',  'APPLE', 'com.example.ecommerce.nutrition_weekly');
+INSERT INTO product_store_mappings (sku, store, store_product_id) VALUES ('TRVL-LNGP',  'APPLE', 'com.example.ecommerce.lounge_annual');
+INSERT INTO product_store_mappings (sku, store, store_product_id) VALUES ('HLTH-VPWL',  'APPLE', 'com.example.ecommerce.vip_wellness_monthly');
+INSERT INTO product_store_mappings (sku, store, store_product_id) VALUES ('FINC-CCARD', 'APPLE', 'com.example.ecommerce.premium_card');
+INSERT INTO product_store_mappings (sku, store, store_product_id) VALUES ('FINC-PLAT',  'APPLE', 'com.example.ecommerce.platinum_card');
+INSERT INTO product_store_mappings (sku, store, store_product_id) VALUES ('ELEC-IP15P', 'APPLE', 'com.example.ecommerce.iphone15pro');

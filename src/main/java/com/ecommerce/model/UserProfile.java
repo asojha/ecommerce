@@ -22,6 +22,9 @@ public class UserProfile {
     @Column(nullable = false)
     private String name;
 
+    /** BCrypt-hashed password for mobile auth; null for users created via the web API. */
+    private String passwordHash;
+
     private Integer age;
 
     @Enumerated(EnumType.STRING)

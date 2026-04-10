@@ -6,8 +6,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
 
 @Entity
@@ -76,6 +79,16 @@ public class Product {
     @Schema(description = "Whether the product appears in the catalogue and recommendations. " +
                           "DELETE sets this to false (soft delete)", example = "true")
     private boolean active = true;
+
+    @CreationTimestamp
+    @Column(nullable = false, updatable = false)
+    @Schema(description = "Timestamp when the product was first created (server-set)", accessMode = Schema.AccessMode.READ_ONLY)
+    private Instant createdAt;
+
+    @UpdateTimestamp
+    @Column(nullable = false)
+    @Schema(description = "Timestamp of the most recent update (server-set)", accessMode = Schema.AccessMode.READ_ONLY)
+    private Instant updatedAt;
 
     @Enumerated(EnumType.STRING)
     @Schema(description = "Minimum customer lifecycle stage required; null = any status",
