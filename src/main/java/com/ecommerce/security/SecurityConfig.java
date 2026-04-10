@@ -31,8 +31,8 @@ public class SecurityConfig {
                     "/api/mobile/auth/register",
                     "/api/mobile/auth/login"
                 ).permitAll()
-                // Public: Apple webhooks (secured by JWS payload signature)
-                .requestMatchers("/api/webhooks/apple").permitAll()
+                // Public: store webhooks (secured by payload signature / OIDC JWT)
+                .requestMatchers("/api/webhooks/apple", "/api/webhooks/google").permitAll()
                 // Public: existing web admin UI and its APIs (no mobile auth needed)
                 .requestMatchers(
                     "/",
